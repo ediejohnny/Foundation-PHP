@@ -1,2 +1,2 @@
-# Foundation PHP
- Foundation for Sites with PHP, favicon and custom fonts integrated Gulp file.
+# IN DEVELOPMENT, but...
+It'll be a project that integrates ZURB Foundation 6 (ZURB Template) and PHP, so you'll be able to develop using PHP with all the benefits of Foundation framework (if the project is inside of the webserver).
