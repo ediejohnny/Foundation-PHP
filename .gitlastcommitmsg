@@ -1,1 +1,1 @@
-refactor(master): added php with mvc project, husky and commitlint
+fix(husky): deleting fix-husky.js, this file is not needed anymore

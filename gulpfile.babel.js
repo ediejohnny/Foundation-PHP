@@ -32,7 +32,7 @@ function loadConfig() {
 // Build the "dist" folder by running all of the below tasks
 // Sass must be run later so UnCSS can search for used classes in the others assets.
 gulp.task('build',
- gulp.series(clean, gulp.parallel(pages, javascript, images, copy), copy_fonts, copy_php, styleGuide, sass));
+ gulp.series(clean, gulp.parallel(javascript, images, copy), copy_fonts, copy_php, pages, styleGuide, sass));
 
 // Build the site, run the server, and watch for file changes
 gulp.task('default',
@@ -48,28 +48,28 @@ function clean(done) {
 // This task skips over the "img", "js", and "scss" folders, which are parsed separately
 function copy() {
   return gulp.src(PATHS.assets)
-    .pipe(gulp.dest(PATHS.dist + '/public/assets'));
+    .pipe(gulp.dest(PATHS.dist + '/assets'));
 }
 
 function copy_php() {
-  return gulp.src('src/pages/**/*.php').pipe(gulp.dest(PATHS.dist));
+  return gulp.src('src/pages/**/{*.php,.htaccess}').pipe(gulp.dest(PATHS.dist));
 }
 
 function copy_fonts() {
-  return gulp.src('src/assets/fonts/**/*').pipe(gulp.dest(PATHS.dist + '/public/assets/css/fonts'));
+  return gulp.src('src/assets/fonts/**/*').pipe(gulp.dest(PATHS.dist + '/assets/css/fonts'));
 }
 
 // Copy page templates into finished HTML files
 function pages() {
-  return gulp.src('src/pages/**/*.{html,hbs,handlebars}')
+  return gulp.src('src/pages/templates/*.{php,html,hbs,handlebars}')
     .pipe(panini({
-      root: 'src/pages/',
+      root: 'src/pages/templaes/',
       layouts: 'src/layouts/',
       partials: 'src/partials/',
       data: 'src/data/',
       helpers: 'src/helpers/'
     }))
-    .pipe(gulp.dest(PATHS.dist));
+    .pipe(gulp.dest(PATHS.dist + '/templates'));
 }
 
 // Load updated HTML templates and partials into Panini
@@ -108,7 +108,7 @@ function sass() {
     .pipe($.postcss(postCssPlugins))
     .pipe($.if(PRODUCTION, $.cleanCss({ compatibility: 'ie9' })))
     .pipe($.if(!PRODUCTION, $.sourcemaps.write()))
-    .pipe(gulp.dest(PATHS.dist + '/public/assets/css'))
+    .pipe(gulp.dest(PATHS.dist + '/assets/css'))
     .pipe(browser.reload({ stream: true }));
 }
 
@@ -142,7 +142,7 @@ function javascript() {
       .on('error', e => { console.log(e); })
     ))
     .pipe($.if(!PRODUCTION, $.sourcemaps.write()))
-    .pipe(gulp.dest(PATHS.dist + '/public/assets/js'));
+    .pipe(gulp.dest(PATHS.dist + '/assets/js'));
 }
 
 // Copy images to the "dist" folder
@@ -152,7 +152,7 @@ function images() {
     .pipe($.if(PRODUCTION, $.imagemin([
       $.imagemin.jpegtran({ progressive: true }),
     ])))
-    .pipe(gulp.dest(PATHS.dist + '/public/assets/img'));
+    .pipe(gulp.dest(PATHS.dist + '/assets/img'));
 }
 
 // Start a server with BrowserSync to preview the site in
@@ -171,8 +171,7 @@ function reload(done) {
 // Watch for changes to static assets, pages, Sass, and JavaScript
 function watch() {
   gulp.watch(PATHS.assets, copy);
-  gulp.watch('src/pages/**/*.php').on('all', gulp.series(pages, copy_php, browser.reload));
-  gulp.watch('src/pages/**/*.html').on('all', gulp.series(pages, browser.reload));
+  gulp.watch('src/pages/**/*.php').on('all', copy_php, pages, browser.reload);
   gulp.watch('src/{layouts,partials}/**/*.html').on('all', gulp.series(resetPages, pages, browser.reload));
   gulp.watch('src/data/**/*.{js,json,yml}').on('all', gulp.series(resetPages, pages, browser.reload));
   gulp.watch('src/helpers/**/*.js').on('all', gulp.series(resetPages, pages, browser.reload));

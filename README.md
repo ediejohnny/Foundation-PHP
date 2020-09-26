@@ -1,2 +1,2 @@
-# IN DEVELOPMENT, but...
-It'll be a project that integrates ZURB Foundation 6 (ZURB Template) and PHP, so you'll be able to develop using PHP with all the benefits of Foundation framework (if the project is inside of the webserver).
+# ZURB Foundation 6 with PHP support
+This is a default project of Foundation 6, but with PHP support.
