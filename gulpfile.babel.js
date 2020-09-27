@@ -32,7 +32,7 @@ function loadConfig() {
 // Build the "dist" folder by running all of the below tasks
 // Sass must be run later so UnCSS can search for used classes in the others assets.
 gulp.task('build',
- gulp.series(clean, gulp.parallel(javascript, images, copy), copy_fonts, copy_php, pages, styleGuide, sass));
+ gulp.series(clean, javascript, images, copy, copy_fonts, copy_php, pages, styleGuide, sass));
 
 // Build the site, run the server, and watch for file changes
 gulp.task('default',
@@ -63,7 +63,7 @@ function copy_fonts() {
 function pages() {
   return gulp.src('src/pages/templates/*.{php,html,hbs,handlebars}')
     .pipe(panini({
-      root: 'src/pages/templaes/',
+      root: 'src/pages/templates/',
       layouts: 'src/layouts/',
       partials: 'src/partials/',
       data: 'src/data/',
