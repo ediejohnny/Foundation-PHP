@@ -32,7 +32,7 @@ function loadConfig() {
 // Build the "dist" folder by running all of the below tasks
 // Sass must be run later so UnCSS can search for used classes in the others assets.
 gulp.task('build',
- gulp.series(clean, javascript, images, copy, copy_fonts, copy_php, pages, styleGuide, sass));
+ gulp.series(clean, javascript, images, copy, copy_fonts, copy_php, copy_modules, copy_routes, pages, styleGuide, sass));
 
 // Build the site, run the server, and watch for file changes
 gulp.task('default',
@@ -52,7 +52,18 @@ function copy() {
 }
 
 function copy_php() {
-  return gulp.src('src/pages/**/{*.php,.htaccess}').pipe(gulp.dest(PATHS.dist));
+  return gulp.src('src/pages/**/*{index.php,config.php,functions.php,.htaccess}')
+    .pipe(gulp.dest(PATHS.dist));
+}
+
+function copy_modules() {
+  return gulp.src('src/pages/modules/**/*.php')
+  .pipe(gulp.dest(PATHS.dist + '/modules'));
+}
+
+function copy_routes() {
+  return gulp.src('src/pages/routes/**/*.php')
+  .pipe(gulp.dest(PATHS.dist + '/routes'));
 }
 
 function copy_fonts() {
@@ -95,7 +106,7 @@ function sass() {
     autoprefixer(),
 
     // UnCSS - Uncomment to remove unused styles in production
-    PRODUCTION || uncss.postcssPlugin(UNCSS_OPTIONS)
+    // PRODUCTION || uncss.postcssPlugin(UNCSS_OPTIONS)
     
   ].filter(Boolean);
 
@@ -171,7 +182,7 @@ function reload(done) {
 // Watch for changes to static assets, pages, Sass, and JavaScript
 function watch() {
   gulp.watch(PATHS.assets, copy);
-  gulp.watch('src/pages/**/*.php').on('all', copy_php, pages, browser.reload);
+  gulp.watch('src/pages/**/*.php').on('all', gulp.series(copy_php, copy_modules, copy_routes, resetPages, pages, browser.reload));
   gulp.watch('src/{layouts,partials}/**/*.html').on('all', gulp.series(resetPages, pages, browser.reload));
   gulp.watch('src/data/**/*.{js,json,yml}').on('all', gulp.series(resetPages, pages, browser.reload));
   gulp.watch('src/helpers/**/*.js').on('all', gulp.series(resetPages, pages, browser.reload));
